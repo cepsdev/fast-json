@@ -1,5 +1,5 @@
 # fast-json
-JSON c++ library with focus on small memory footprint and performance.
+C++ header-only library for processing of JSON documents, with focus on small memory footprint and performance.
 ## Build & run example
 ```$ ./build_and_run ```
 ## Example Usage
