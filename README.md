@@ -12,7 +12,7 @@ JSON c++ library with focus on small memory footprint and performance.
 using namespace std;
 
 int main(int argc, char** argv){
-    Arena<1> arena_allocator;        // fast-json come with an arena allocator which supports reallocation,
+    Arena<1> arena_allocator;        // fast-json comes with an arena allocator which supports reallocation,
                                     // the arena API is pretty simple which allows for a straight forward adoption
                                     // of user defined allocators.
     fast_json<Arena<1>> jsn;        
