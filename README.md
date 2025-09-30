@@ -2,7 +2,7 @@
 JSON Lib with focus on small memory footprint and performance
 ## Build & run example
 ```$ ./build_and_run ```
-# Github Copilot's take:
+# Summary generated with Github Copilot (pretty good):
 
 ## What fast-json Does
 
