@@ -1,5 +1,5 @@
 # fast-json
-JSON Lib with focus on small memory footprint and performance
+JSON c++ library with focus on small memory footprint and performance.
 ## Build & run example
 ```$ ./build_and_run ```
 # Summary generated with Github Copilot (pretty good):
