@@ -38,4 +38,3 @@ int main(int argc, char** argv){
 
 
 
-If you want a more concrete example or demo program, let me know!
