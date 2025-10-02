@@ -21,8 +21,10 @@ int main(int argc, char** argv){
     if(r){
         double sum{};
         // fast-json provides a traverse - function which takes a functor f.
-        // The traversal occurs in-order. If an inner node, i.e. array or object,
-        // is visited the first time 'enter' is set to true, and false in the case the node is exited.
+        // The traversal occurs in document order, i.e. pre-order traversal of the binary representation
+        // (root node, then children from left to right). If an inner node, i.e. array or object,
+        // is visited the first time 'enter' is set to true, and false in the case the node is exited, i.e.
+        // after all children have been visited.
         traverse_binary_representation(r->first, r->second.second, [&sum](msg_node*m, bool enter){
             if (m->what== msg_node::F64) sum += ((msg_node_f64*)m)->value; // all nodes derive from msg_node,
                     //dispatch according to the 'what' field, cast if necessary (see fast-json.hpp for details)
