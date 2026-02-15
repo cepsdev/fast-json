@@ -95,11 +95,22 @@ struct json_token{
 template<typename arena_allocator_t>
  class fast_json{
   public:
+
   template<typename T>
   using optional = std::optional<T>;
   template<typename T1, typename T2>
   using pair = std::pair<T1,T2>;
   using string = std::string;
+  using read_result_t = optional< pair< char* , pair<size_t,size_t>>>;
+  
+  arena_allocator_t* arena{};
+  int arena_id{};
+  read_result_t data{};
+
+  fast_json() = default;
+  fast_json(string const & json, arena_allocator_t& arena, int arena_id);
+
+  operator bool() const {return data.has_value();}
 
   static optional<string> extract_str_value(json_token tok, string msg){
     if (tok.type != json_token::string || tok.from > tok.end || tok.end > msg.length())
@@ -504,7 +515,13 @@ template<typename arena_allocator_t>
     }
     return false;
    }
-   optional< pair< char* , pair<size_t,size_t> >> read(string json, arena_allocator_t* arena, size_t arena_id){
+   optional< pair< char* , pair<size_t,size_t> >> read(string json, arena_allocator_t* arena, size_t arena_id);
+}; // class fast_json
+
+
+template<typename arena_allocator_t> 
+ fast_json<arena_allocator_t>::read_result_t 
+ fast_json<arena_allocator_t>::read(std::string json, arena_allocator_t* arena, size_t arena_id){
     ser_ctxt_t ctx{json};
     ctx.total = sizeof(msg_node);
     ctx.used = 0;
@@ -523,8 +540,14 @@ template<typename arena_allocator_t>
 
     if (!read_internal(ctx)) return {};    
     return {std::make_pair(ctx.buffer, std::make_pair(ctx.total, ctx.used))};
-   }
-};
+}
+
+template<typename arena_allocator_t> 
+ fast_json<arena_allocator_t>::fast_json(string const & json, arena_allocator_t& arena, int arena_id): 
+  arena{&arena}, arena_id{arena_id} 
+{
+    data = read(json,this->arena,this->arena_id);
+}
 
 template<typename F>
 size_t traverse_binary_representation(char* buffer, size_t size, F f){
