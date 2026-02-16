@@ -27,6 +27,7 @@ SOFTWARE.
 #include <string>
 #include <math.h>
 #include <utility>
+#include <string>
 
 #pragma pack(push,1)
 struct msg_node{
@@ -102,6 +103,9 @@ template<typename arena_allocator_t>
   using pair = std::pair<T1,T2>;
   using string = std::string;
   using read_result_t = optional< pair< char* , pair<size_t,size_t>>>;
+
+  static char* get_buffer(read_result_t r) {return r->first;}
+  static size_t get_buffer_size(read_result_t r) {return r->second.second;}
   
   arena_allocator_t* arena{};
   int arena_id{};
@@ -110,8 +114,63 @@ template<typename arena_allocator_t>
   fast_json() = default;
   fast_json(string const & json, arena_allocator_t& arena, int arena_id);
 
-  operator bool() const {return data.has_value();}
+  //operator bool() const {return data.has_value();}
+  bool valid() const {return data.has_value();}
 
+  struct nodes_ref_t {
+    bool valid{};
+    char* nodes;
+    size_t size;
+    bool is_valid() const {return valid;}
+    nodes_ref_t() = default;
+    nodes_ref_t(char* nodes, size_t size):valid{true},nodes{nodes},size{size}{}
+    operator std::string() const{
+        if (!valid) return {};
+        auto node = (msg_node*) nodes;
+        if (node->what == msg_node::SZ){
+            return nodes + sizeof(msg_node);
+        }
+        return {};
+    }
+  };
+
+  nodes_ref_t operator [] (string const & field){
+    using std::cerr;
+    if (!data) return {};
+    auto size = get_buffer_size(data);
+    auto buffer = get_buffer(data);
+    if (size == 0) return {};
+    if (size < sizeof(msg_node)) return {};
+
+    msg_node& top_node{ *(msg_node*)buffer };
+    if (top_node.what != msg_node::ROOT) return {};
+    auto content_size = top_node.size - sizeof(msg_node);
+    if (content_size < sizeof(msg_node)) return {};
+    //only child has to be an object to which we can apply the field selector
+    auto cur = buffer + sizeof(msg_node);
+    auto node  = (msg_node*) cur;
+    if (node->what != msg_node::NODE) return {};
+    auto name = cur + sizeof(msg_node);
+    auto l = strlen(name);
+    if (l != 0)
+     if (strcmp(name,field.c_str())== 0) return nodes_ref_t{cur + sizeof(msg_node) + l + 1, node->size - sizeof(msg_node)- l - 1};
+     else return {};
+    cur += sizeof(msg_node) + 1;
+    content_size -= sizeof(msg_node) + 1;
+    for(;content_size>0;){
+        node  = (msg_node*) cur;
+        if(node->what == msg_node::NODE){
+            name = cur + sizeof(msg_node);
+            l = strlen(name);
+            if (name == field) {
+             return nodes_ref_t{cur + sizeof(msg_node) + l + 1, node->size - sizeof(msg_node)- l - 1};
+            }
+        } 
+        content_size -= node->size;
+        cur += node->size;
+    }
+    return {};
+  }
   static optional<string> extract_str_value(json_token tok, string msg){
     if (tok.type != json_token::string || tok.from > tok.end || tok.end > msg.length())
      return {};
@@ -520,7 +579,7 @@ template<typename arena_allocator_t>
 
 
 template<typename arena_allocator_t> 
- fast_json<arena_allocator_t>::read_result_t 
+ typename fast_json<arena_allocator_t>::read_result_t 
  fast_json<arena_allocator_t>::read(std::string json, arena_allocator_t* arena, size_t arena_id){
     ser_ctxt_t ctx{json};
     ctx.total = sizeof(msg_node);
