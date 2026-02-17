@@ -132,6 +132,14 @@ template<typename arena_allocator_t>
         }
         return {};
     }
+    operator double() const{
+        if (!valid) return {};
+        auto node = (msg_node*) nodes;
+        if (node->what == msg_node::F64){
+            return ((msg_node_f64*)nodes)->value;
+        }
+        return {};
+    }
   };
 
   nodes_ref_t operator [] (string const & field){

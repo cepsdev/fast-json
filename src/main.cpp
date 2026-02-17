@@ -22,7 +22,33 @@ int main(int argc, char** argv){
     }
     {
      // Access via the index operator []
-     std::string json = R"({"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{"sampling":{},"elicitation":{},"roots":{"listChanged":true},"tasks":{"list":{},"cancel":{},"requests":{"sampling":{"createMessage":{}},"elicitation":{"create":{}}}}},"clientInfo":{"name":"inspector-client","version":"0.20.0"}}})";
+     std::string json = R"({
+      "pi":3.141592655359,
+      "jsonrpc":"2.0",
+      
+      "id":0,"method":"initialize",
+      "params":
+       {
+        "protocolVersion":"2025-11-25",
+        "capabilities":{
+          "sampling":{},
+          "elicitation":{},
+          "roots":{"listChanged":true},
+          "tasks":{
+            "list":{},
+            "cancel":{},
+            "requests":{
+            "sampling":{"createMessage":{}},
+            "elicitation":{"create":{}}
+           }
+          }
+        },
+       "clientInfo":{
+         "name":"inspector-client",
+         "version":"0.20.0"
+        }
+       }
+      })";
      fast_json<Arena<1>> jsn{json, arena_allocator, 0}; 
      if (!jsn.valid()){
         std::cerr << "Failed to read >>"+json+"<<.\n";
@@ -30,7 +56,8 @@ int main(int argc, char** argv){
      }
      std::string jsonrpc = jsn["jsonrpc"];
      std::string method = jsn["method"];
-     std::cerr << "jsonrpc=" << jsonrpc <<" "<<"method="<< method <<"\n"; 
+     double pi = jsn["pi"];
+     std::cerr << "jsonrpc=" << jsonrpc <<" "<<"method="<< method << " pi=" << pi <<"\n"; 
     }
     return 0;
 }
