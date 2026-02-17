@@ -8,8 +8,9 @@ C++ header-only library for processing of JSON documents, with focus on small me
 ```c++
 #include "fast-json.hpp"
 #include <iostream>
-
+#include <string>
 using namespace std;
+
 
 int main(int argc, char** argv){
     Arena<1> arena_allocator;        // fast-json comes with an arena allocator which supports reallocation,
@@ -34,7 +35,6 @@ int main(int argc, char** argv){
         cerr << "Failed to read JSON.\n";
         return 1;
     }
-
     {
      // Access via the index operator []
      std::string json = R"({
@@ -72,9 +72,9 @@ int main(int argc, char** argv){
      std::string jsonrpc = jsn["jsonrpc"];
      std::string method = jsn["method"];
      double pi = jsn["pi"];
-     std::cerr << "jsonrpc=" << jsonrpc <<" "<<"method="<< method << " pi=" << pi <<"\n"; 
-    }
-
+     std::string params_protocolVersion = jsn["params"]["protocolVersion"];
+     std::cerr << "jsonrpc=" << jsonrpc <<" "<<"method="<< method << " pi=" << pi << " params.protocolVersion=" << params_protocolVersion << "\n"; 
+   }
     return 0;
 }
 ```

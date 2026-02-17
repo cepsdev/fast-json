@@ -2,7 +2,6 @@
 #include "fast-json.hpp"
 
 
-
 int main(int argc, char** argv){
     Arena<1> arena_allocator;
     { // Full traversal of a json tree
@@ -57,7 +56,8 @@ int main(int argc, char** argv){
      std::string jsonrpc = jsn["jsonrpc"];
      std::string method = jsn["method"];
      double pi = jsn["pi"];
-     std::cerr << "jsonrpc=" << jsonrpc <<" "<<"method="<< method << " pi=" << pi <<"\n"; 
+     std::string params_protocolVersion = jsn["params"]["protocolVersion"];
+     std::cerr << "jsonrpc=" << jsonrpc <<" "<<"method="<< method << " pi=" << pi << " params.protocolVersion=" << params_protocolVersion << "\n"; 
     }
     return 0;
 }

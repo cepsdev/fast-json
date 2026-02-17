@@ -140,10 +140,36 @@ template<typename arena_allocator_t>
         }
         return {};
     }
+    nodes_ref_t operator []( std::string field_name) const{
+        if (!valid) return {};
+        auto node = (msg_node*) nodes;
+        if (node->what != msg_node::NODE) return {};
+        auto name = nodes + sizeof(msg_node);
+        auto l = strlen(name);
+        if (l == 0){
+        auto cur = nodes + sizeof(msg_node) + 1;
+        auto content_size = node->size - sizeof(msg_node) - 1;
+        for(;content_size>0;){
+         node  = (msg_node*) cur;
+         if(node->what == msg_node::NODE){
+            name = cur + sizeof(msg_node);
+            l = strlen(name);
+            if (name == field_name) {
+             return nodes_ref_t{cur + sizeof(msg_node) + l + 1, node->size - sizeof(msg_node)- l - 1};
+            }
+         } 
+         content_size -= node->size;
+         cur += node->size;
+         }
+        } else {
+            if (name != field_name) return {};
+            return nodes_ref_t{nodes + sizeof(msg_node) + l + 1, node->size - l - 1 - sizeof(msg_node) };
+        }
+        return {};
+    }
   };
 
   nodes_ref_t operator [] (string const & field){
-    using std::cerr;
     if (!data) return {};
     auto size = get_buffer_size(data);
     auto buffer = get_buffer(data);
