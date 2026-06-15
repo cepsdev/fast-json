@@ -28,6 +28,7 @@ SOFTWARE.
 #include <math.h>
 #include <utility>
 #include <string>
+#include <cstdint>
 
 #pragma pack(push,1)
 struct msg_node{
@@ -85,11 +86,11 @@ struct json_token{
            comma,
            colon, 
            eoi /*end of input*/} type;
-    size_t from, end;
-    double value_f;
-    int64_t value_i;
-    bool value_b;    
-    bool is_int;
+    size_t from{}, end{};
+    double value_f{};
+    int64_t value_i{};
+    bool value_b{};    
+    bool is_int{};
     operator bool() const {return type != undef;}
 };
 
@@ -186,9 +187,11 @@ template<typename arena_allocator_t>
     if (node->what != msg_node::NODE) return {};
     auto name = cur + sizeof(msg_node);
     auto l = strlen(name);
-    if (l != 0)
-     if (strcmp(name,field.c_str())== 0) return nodes_ref_t{cur + sizeof(msg_node) + l + 1, node->size - sizeof(msg_node)- l - 1};
+    if (l != 0){
+     if (strcmp(name,field.c_str())== 0) 
+      return nodes_ref_t{cur + sizeof(msg_node) + l + 1, node->size - sizeof(msg_node)- l - 1};
      else return {};
+    }
     cur += sizeof(msg_node) + 1;
     content_size -= sizeof(msg_node) + 1;
     for(;content_size>0;){
